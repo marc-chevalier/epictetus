@@ -1,0 +1,7 @@
+(library
+    (name epictetus)
+    (wrapped true)
+    (public_name epictetus)
+    (flags (:standard -w @A))
+)
+

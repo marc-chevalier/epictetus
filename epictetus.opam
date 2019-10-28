@@ -1,0 +1,26 @@
+opam-version: "2.0"
+name: "epictetus"
+version: "1.0.0"
+synopsis: "Elegant Printer of Insanely Complex Tables Expressing Trees of Unconsistent Shape"
+maintainer: "Marc Chevalier <marc.chevalier@ens.fr>"
+authors: "Marc Chevalier <marc.chevalier@ens.fr>"
+depends: [
+  "ocaml" {>= "4.02.3"}
+  "dune" {build & >= "1.6.3"}
+  "cppo" {build & >= "1.6.5"}
+  "ounit2" {with-test & >= "2.0.8"}
+]
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+]
+run-test: [
+  ["dune" "runtest"]
+]
+homepage: "https://gitlab.goji.ens.fr/astree/epictetus"
+bug-reports: "https://gitlab.goji.ens.fr/astree/epictetus/issues"
+dev-repo: "git+https://gitlab.goji.ens.fr/astree/epictetus.git"
+license: "MIT"
+description: """
+Align nicely tables in which each line may not have the same subdivision of subcolumns.
+"""
+

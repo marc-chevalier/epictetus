@@ -1,0 +1,3 @@
+(test (name epictetus_test)
+ (libraries ounit2 epictetus ocolor))
+
