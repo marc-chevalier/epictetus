@@ -1,7 +1,7 @@
 opam-version: "2.0"
 name: "epictetus"
 version: "1.0.0"
-synopsis: "Elegant Printer of Insanely Complex Tables Expressing Trees of Unconsistent Shape"
+synopsis: "Elegant Printer of Insanely Complex Tables Expressing Trees with Unconsistent Shapes"
 maintainer: "Marc Chevalier <marc.chevalier@ens.fr>"
 authors: "Marc Chevalier <marc.chevalier@ens.fr>"
 depends: [

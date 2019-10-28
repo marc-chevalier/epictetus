@@ -1,14 +1,23 @@
 open Epictetus.Tabulator
 
+let rec pp_print_list (pp_v: Format.formatter -> 'a -> unit) (ppf: Format.formatter) (l: 'a list) : unit =
+  match l with
+  | [] -> ()
+  | [v] -> pp_v ppf v
+  | v :: vs ->
+    pp_v ppf v;
+    Format.pp_print_string ppf "; ";
+    pp_print_list pp_v ppf vs
+
 let rec pp_string_tree_contents (fmt: Format.formatter) (t: StringTabulator.tree_contents) : unit =
   match t with
   | Leaf s -> Format.pp_print_string fmt s
-  | Node l -> Ocolor_format.pp_list pp_string_tree_contents fmt l
+  | Node l -> Format.fprintf fmt "[%a]" (pp_print_list pp_string_tree_contents) l
 
 let rec pp_string_tree_size (fmt: Format.formatter) (t: tree_size) : unit =
   match t with
   | SLeaf s -> Format.pp_print_int fmt s
-  | SNode (l, s) -> Format.fprintf fmt "%d%a" s (Ocolor_format.pp_list pp_string_tree_size) l
+  | SNode (l, s) -> Format.fprintf fmt "%d[%a]" s (pp_print_list pp_string_tree_size) l
 
 let rec has_same_shape (c: StringTabulator.tree_contents) (s: tree_size) : bool =
   match c, s with
