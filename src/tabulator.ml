@@ -109,7 +109,7 @@ module Pp_param
   =
   (struct
     type contents = Format.formatter -> unit
-    let contents_length (c: contents) : int = Format.asprintf "%t" c |> String.length
+    let contents_length (c: contents) : int = Format.kasprintf String.length "%t" c
     let pp (fmt: Format.formatter) (pp: contents) : unit = pp fmt
   end)
 
