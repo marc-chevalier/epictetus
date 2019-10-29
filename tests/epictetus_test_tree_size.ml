@@ -7,10 +7,10 @@ open Epictetus_test_lib
 let _test_tree_size : test =
   let open StringTabulator in
   let test_cases : (string * tree_contents * tree_size) list = [
-    "empty_leaf", Leaf "", SLeaf 0;
-    "trivial", Node [], SNode ([], 0);
-    "2_empty_leaves", Node [Leaf ""; Leaf ""], SNode ([SLeaf 0; SLeaf 0], 0);
-    "2_leaves", Node [Leaf "ab"; Leaf "cde"], SNode ([SLeaf 2; SLeaf 3], 5);
+    "empty_leaf", Leaf "", sleaf 0;
+    "trivial", Node [], snode [] 0;
+    "2_empty_leaves", Node [Leaf ""; Leaf ""], snode [sleaf 0; sleaf 0] 0;
+    "2_leaves", Node [Leaf "ab"; Leaf "cde"], snode [sleaf 2; sleaf 3] 5;
   ]
   in
   let test (name, f, standard : string * tree_contents * tree_size) : test =
@@ -47,13 +47,13 @@ let _test_tree_size : test =
 
 let _test_merge_size_trees : test =
   let test_cases : (string * tree_size * tree_size * tree_size) list = [
-    "empty_leaves", SLeaf 0, SLeaf 0, SLeaf 0;
-    "empty_node_empty_leaf", SNode ([], 0), SLeaf 0, SNode ([], 0);
-    "non_empty_node_empty_leaf", SNode ([], 10), SLeaf 0, SNode ([], 10);
-    "empty_node_non_empty_leaf", SNode ([], 0), SLeaf 10, SNode ([], 10);
-    "2_empty_leaves_empty_leaf", SNode ([SLeaf 0; SLeaf 0], 0), SLeaf 0, SNode ([SLeaf 0; SLeaf 0], 0);
-    "non_empty_node_non_empty_leaf", SNode ([SLeaf 2; SLeaf 3], 5), SLeaf 10, SNode ([SLeaf 2; SLeaf 3], 10);
-    "inconsistent_nodes", SNode ([SLeaf 2; SLeaf 3], 5), SNode ([SLeaf 5; SLeaf 1; SLeaf 8], 14), SNode ([SLeaf 5; SLeaf 3; SLeaf 8], 16);
+    "empty_leaves", sleaf 0, sleaf 0, sleaf 0;
+    "empty_node_empty_leaf", snode [] 0, sleaf 0, snode [] 0;
+    "non_empty_node_empty_leaf", snode [] 10, sleaf 0, snode [] 10;
+    "empty_node_non_empty_leaf", snode [] 0, sleaf 10, snode [] 10;
+    "2_empty_leaves_empty_leaf", snode [sleaf 0; sleaf 0] 0, sleaf 0, snode [sleaf 0; sleaf 0] 0;
+    "non_empty_node_non_empty_leaf", snode [sleaf 2; sleaf 3] 5, sleaf 10, snode [sleaf 2; sleaf 3] 10;
+    "inconsistent_nodes", snode [sleaf 2; sleaf 3] 5, snode [sleaf 5; sleaf 1; sleaf 8] 14, snode [sleaf 5; sleaf 3; sleaf 8] 16;
   ]
   in
   let test (name, a, b, standard : string * tree_size * tree_size * tree_size) : test =

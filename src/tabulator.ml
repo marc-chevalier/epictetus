@@ -1,22 +1,19 @@
 [@@@warning "+A"]
 exception PrintError of string list
 
-type tree_size =
-  | SLeaf of int
-  | SNode of tree_size list * int
+type tree_size = {
+  width: int;
+  children: tree_size list;
+}
 
 let rec merge_size_trees (a: tree_size) (b: tree_size) : tree_size =
   let rec aux (a: tree_size list) (b: tree_size list) : tree_size list =
     match a, b with
     | a, [] | [], a -> a
-    | (t1::q1), (t2::q2) -> merge_size_trees t1 t2::aux q1 q2
+    | t1::q1, t2::q2 -> merge_size_trees t1 t2::aux q1 q2
   in
-  match a, b with
-  | SLeaf p,      SLeaf q -> SLeaf (max p q)
-  | SNode (l, p), SLeaf q -> SNode (l, max p q)
-  | SLeaf p, SNode (m, q) -> SNode (m, max p q)
-  | SNode (l, p), SNode (m, q) -> let a = aux l m in
-    SNode (a, max (max p q) (List.fold_left (fun a -> function SLeaf n | SNode(_, n) -> a + n) 0 a))
+  let children = aux a.children b.children in
+  {children; width = max (max a.width b.width) (List.fold_left (fun a node -> a + node.width) 0 children)}
 
 module type PARAM =
   (sig
@@ -50,29 +47,33 @@ module Tabulator (T: PARAM)
       | Node of tree_contents list
 
     let rec tree_size : tree_contents -> tree_size = function
-      | Leaf s -> SLeaf (T.contents_length s)
-      | Node l -> let size_l = List.map tree_size l in SNode (size_l, List.fold_left (fun a -> function | SLeaf n | SNode(_, n) -> a+n ) 0 size_l)
+      | Leaf s -> {children = []; width = T.contents_length s}
+      | Node l ->
+        let children = List.map tree_size l in
+        {children; width = List.fold_left (fun a node -> a + node.width) 0 children}
 
     let print_tree_with_size (size: tree_size) (fmt: Format.formatter) (str: tree_contents) : unit =
       let pad (fmt: Format.formatter) (n: int) : unit =
         Format.pp_print_string fmt (String.make n ' ')
       in
       let rec aux (str: tree_contents) (size: tree_size) : int =
-        match str, size with
-        | Leaf s, SLeaf n
-        | Leaf s, SNode (_, n) -> let d = n - T.contents_length s in
+        match str with
+        | Leaf s ->
+          let d = size.width - T.contents_length s in
           let () = Format.fprintf fmt "%a%a" T.pp s pad d in
           T.contents_length s + d
-        | Node _, SLeaf _ -> raise (PrintError [__LOC__; Format.asprintf "print_tree_with_size: string sub-tree with no size sub-tree"])
-        | Node l, SNode (m, n) ->
+        | Node l ->
           let rec aux2 l m : int =
             match l, m with
-            | [], _ -> let () = Format.pp_print_string fmt "" in 0
-            | t1::q1, t2::q2 -> let b = aux t1 t2 in let d = aux2 q1 q2 in b + d
+            | [], _ -> 0
+            | t1::q1, t2::q2 ->
+              let b = aux t1 t2 in
+              let d = aux2 q1 q2 in
+              b + d
             | _::_, [] -> raise (PrintError [__LOC__; Format.asprintf "print_tree_with_size: pattern inconsistent with string tree"])
           in
-          let size_s = aux2 l m in
-          let d = n - size_s in
+          let size_s = aux2 l size.children in
+          let d = size.width - size_s in
           let () = pad fmt d in
           size_s + d
       in

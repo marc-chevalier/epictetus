@@ -15,35 +15,32 @@ let rec pp_string_tree_contents (fmt: Format.formatter) (t: StringTabulator.tree
   | Node l -> Format.fprintf fmt "[%a]" (pp_print_list pp_string_tree_contents) l
 
 let rec pp_string_tree_size (fmt: Format.formatter) (t: tree_size) : unit =
-  match t with
-  | SLeaf s -> Format.pp_print_int fmt s
-  | SNode (l, s) -> Format.fprintf fmt "%d[%a]" s (pp_print_list pp_string_tree_size) l
+  Format.fprintf fmt "%d[%a]" t.width (pp_print_list pp_string_tree_size) t.children
 
 let rec has_same_shape (c: StringTabulator.tree_contents) (s: tree_size) : bool =
   match c, s with
-  | Leaf _, SLeaf _ -> true
-  | Node _, SLeaf _ | Leaf _, SNode _ -> false
-  | Node c, SNode (s, _) ->
+  | Leaf _, {children=[]; _} -> true
+  | Leaf _, _ -> false
+  | Node c, {children=s; _} ->
     List.(length c = length s) && List.for_all2 has_same_shape c s
 
-let rec consistent_tree_size (s: tree_size) : bool =
-  match s with
-  | SLeaf s -> s >= 0
-  | SNode (l, s) ->
-    List.fold_left (fun acc -> function SLeaf s | SNode (_, s) -> acc + s) 0 l <= s
-    && List.for_all consistent_tree_size l
+let rec consistent_tree_size (size: tree_size) : bool =
+  size.width >= 0
+  && List.fold_left (fun acc node -> acc + node.width) 0 size.children <= size.width
+  && List.for_all consistent_tree_size size.children
 
 let rec subseteq (a: tree_size) (b: tree_size) : bool =
-  match a, b with
-  | SLeaf _, SLeaf _ -> true
-  | SNode _, SLeaf _ -> false
-  | SLeaf _, SNode _ -> true
-  | SNode (la, sa), SNode (lb, sb) ->
-    let rec aux a b =
-      match a, b with
-      | [], _ -> true
-      | _ :: __, [] -> false
-      | ha :: ta, hb :: tb ->
-        subseteq ha hb && aux ta tb
-    in
-    sa <= sb && aux la lb
+  let rec aux a b =
+    match a, b with
+    | [], _ -> true
+    | _ :: _, [] -> false
+    | ha :: ta, hb :: tb ->
+      subseteq ha hb && aux ta tb
+  in
+  a.width <= b.width && aux a.children b.children
+
+let sleaf (width: int) : tree_size =
+  {width; children = []}
+
+let snode (children: tree_size list) (width: int) : tree_size =
+  {children; width}

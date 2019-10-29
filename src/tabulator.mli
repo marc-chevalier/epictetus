@@ -18,9 +18,10 @@ exception PrintError of string list
     Every generated tree_size satisfy this constraints. Be careful if you want
     to use them manually.
 *)
-type tree_size =
-  | SLeaf of int
-  | SNode of tree_size list * int
+type tree_size = {
+  width: int;
+  children: tree_size list;
+}
 
 (** Compute the join of given tree_size. Intended for internal use. Be careful.
 *)
