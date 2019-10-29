@@ -59,3 +59,11 @@ ocaml-4.08:
     - dune runtest
     - opam install ./epictetus.opam
 
+ocaml-4.09:
+  script:
+    - opam switch 4.09
+    - eval $(opam env)
+    - opam install ./epictetus.opam --deps-only -t
+    - dune runtest
+    - opam install ./epictetus.opam
+
