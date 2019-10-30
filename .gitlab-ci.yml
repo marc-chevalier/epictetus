@@ -3,14 +3,6 @@ image: ocaml/opam2
 before_script:
   - sudo apt-get update -y && sudo apt-get install m4 -y
 
-ocaml-4.02:
-  script:
-    - opam switch 4.02
-    - eval $(opam env)
-    - opam install ./epictetus.opam --deps-only -t
-    - dune runtest
-    - opam install ./epictetus.opam
-
 ocaml-4.03:
   script:
     - opam switch 4.03
