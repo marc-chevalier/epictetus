@@ -38,9 +38,17 @@ module type TABULATOR =
   (sig
     type contents
 
-    type tree_contents =
+    type _tree_contents =
       | Leaf of contents
       | Node of tree_contents list
+
+    and tree_contents = {
+      node: _tree_contents;
+      fill_with: char;
+    }
+
+    val leaf: ?fill_with:char -> contents -> tree_contents
+    val node: ?fill_with:char -> tree_contents list -> tree_contents
 
     (** Compute the tree_size of a tree_contents. Intended for internal use.
         Cannot be very bad anyway.

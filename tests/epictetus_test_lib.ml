@@ -11,18 +11,18 @@ let rec pp_print_list (pp_v: Format.formatter -> 'a -> unit) (ppf: Format.format
 
 let rec pp_string_tree_contents (fmt: Format.formatter) (t: StringTabulator.tree_contents) : unit =
   match t with
-  | Leaf s -> Format.pp_print_string fmt s
-  | Node l -> Format.fprintf fmt "[%a]" (pp_print_list pp_string_tree_contents) l
+  | {node=Leaf s; _} -> Format.pp_print_string fmt s
+  | {node=Node l; _} -> Format.fprintf fmt "[%a]" (pp_print_list pp_string_tree_contents) l
 
 let rec pp_string_tree_size (fmt: Format.formatter) (t: tree_size) : unit =
   Format.fprintf fmt "%d[%a]" t.width (pp_print_list pp_string_tree_size) t.children
 
 let rec has_same_shape (c: StringTabulator.tree_contents) (s: tree_size) : bool =
-  match c, s with
+  match c.node, s with
   | Leaf _, {children=[]; _} -> true
   | Leaf _, _ -> false
   | Node c, {children=s; _} ->
-    List.(length c = length s) && List.for_all2 has_same_shape c s
+    List.(length c = length s && for_all2 has_same_shape c s)
 
 let rec consistent_tree_size (size: tree_size) : bool =
   size.width >= 0

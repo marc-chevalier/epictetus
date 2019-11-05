@@ -26,9 +26,17 @@ module type TABULATOR =
   (sig
     type contents
 
-    type tree_contents =
+    type _tree_contents =
       | Leaf of contents
       | Node of tree_contents list
+
+    and tree_contents = {
+      node: _tree_contents;
+      fill_with: char;
+    }
+
+    val leaf: ?fill_with:char -> contents -> tree_contents
+    val node: ?fill_with:char -> tree_contents list -> tree_contents
 
     val tree_size : tree_contents -> tree_size
     val print_tree_with_size: tree_size -> Format.formatter -> tree_contents -> unit
@@ -42,27 +50,38 @@ module Tabulator (T: PARAM)
   (struct
     type contents = T.contents
 
-    type tree_contents =
+    type _tree_contents =
       | Leaf of contents
       | Node of tree_contents list
 
+    and tree_contents = {
+      node: _tree_contents;
+      fill_with: char;
+    }
+
+    let leaf ?(fill_with: char = ' ') (contents: contents) : tree_contents =
+      {node = Leaf contents; fill_with}
+
+    let node ?(fill_with: char = ' ') (contents: tree_contents list) : tree_contents =
+      {node = Node contents; fill_with}
+
     let rec tree_size : tree_contents -> tree_size = function
-      | Leaf s -> {children = []; width = T.contents_length s}
-      | Node l ->
+      | {node=Leaf s; _} -> {children = []; width = T.contents_length s}
+      | {node=Node l; _} ->
         let children = List.map tree_size l in
         {children; width = List.fold_left (fun a node -> a + node.width) 0 children}
 
     let print_tree_with_size (size: tree_size) (fmt: Format.formatter) (str: tree_contents) : unit =
-      let pad (fmt: Format.formatter) (n: int) : unit =
-        Format.pp_print_string fmt (String.make n ' ')
+      let pad (fill_with: char) (fmt: Format.formatter) (n: int) : unit =
+        Format.pp_print_string fmt (String.make n fill_with)
       in
       let rec aux (str: tree_contents) (size: tree_size) : int =
         match str with
-        | Leaf s ->
+        | {node=Leaf s; fill_with} ->
           let d = size.width - T.contents_length s in
-          let () = Format.fprintf fmt "%a%a" T.pp s pad d in
+          let () = Format.fprintf fmt "%a%a" T.pp s (pad fill_with) d in
           T.contents_length s + d
-        | Node l ->
+        | {node=Node l; fill_with} ->
           let rec aux2 l m : int =
             match l, m with
             | [], _ -> 0
@@ -74,7 +93,7 @@ module Tabulator (T: PARAM)
           in
           let size_s = aux2 l size.children in
           let d = size.width - size_s in
-          let () = pad fmt d in
+          let () = pad fill_with fmt d in
           size_s + d
       in
       aux str size |> ignore

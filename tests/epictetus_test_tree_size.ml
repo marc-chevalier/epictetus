@@ -7,10 +7,10 @@ open Epictetus_test_lib
 let _test_tree_size : test =
   let open StringTabulator in
   let test_cases : (string * tree_contents * tree_size) list = [
-    "empty_leaf", Leaf "", sleaf 0;
-    "trivial", Node [], snode [] 0;
-    "2_empty_leaves", Node [Leaf ""; Leaf ""], snode [sleaf 0; sleaf 0] 0;
-    "2_leaves", Node [Leaf "ab"; Leaf "cde"], snode [sleaf 2; sleaf 3] 5;
+    "empty_leaf", leaf "", sleaf 0;
+    "trivial", node [], snode [] 0;
+    "2_empty_leaves", node [leaf ""; leaf ""], snode [sleaf 0; sleaf 0] 0;
+    "2_leaves", node [leaf "ab"; leaf "cde"], snode [sleaf 2; sleaf 3] 5;
   ]
   in
   let test (name, f, standard : string * tree_contents * tree_size) : test =
