@@ -13,6 +13,11 @@ let _test_print : test =
     "4", node [leaf "ab"; leaf "cde"], snode [sleaf 2; sleaf 3] 5, "abcde";
     "5", node [leaf "ab"; leaf "cde"], snode [sleaf 4; sleaf 6] 12, "ab  cde     ";
     "5", node ~fill_with:'*' [leaf ~fill_with:'-' "ab"; leaf ~fill_with:'/' "cde"], snode [sleaf 4; sleaf 6] 12, "ab--cde///**";
+    "5", node ~fill_with:'*' [leaf ~fill_with:'-' ~align:Right "ab"; leaf ~fill_with:'/' "cde"], snode [sleaf 4; sleaf 6] 12, "--abcde///**";
+    "5", node ~fill_with:'*' [leaf ~fill_with:'-' "ab"; leaf ~fill_with:'/' ~align:Right "cde"], snode [sleaf 4; sleaf 6] 12, "ab--///cde**";
+    "5", node ~fill_with:'*' ~align:Right [leaf ~fill_with:'-' "ab"; leaf ~fill_with:'/' "cde"], snode [sleaf 4; sleaf 6] 12, "**ab--cde///";
+    "5", node ~fill_with:'*' ~align:Right [leaf ~fill_with:'-' ~align:Right "ab"; leaf ~fill_with:'/' ~align:Right "cde"], snode [sleaf 4; sleaf 6] 12, "**--ab///cde";
+    "5", node ~fill_with:'*' [leaf ~fill_with:'-' ~align:Center "ab"; leaf ~fill_with:'/' ~align:Center "cde"], snode [sleaf 4; sleaf 6] 12, "-ab-/cde//**";
     "5", leaf ~fill_with:'-' "", snode [sleaf 4; sleaf 6] 12,  "------------";
     "6", leaf "bla", snode [sleaf 1; sleaf 2] 4, "bla ";
     "7", leaf "bla", snode [sleaf 1; sleaf 2] 3, "bla";

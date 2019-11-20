@@ -1,3 +1,6 @@
+Working:
+- Align option
+
 2.0.0 (2019-11-20):
 - Drop OCaml 4.02 support
 - Add a fill_with field

@@ -1,6 +1,11 @@
 [@@@warning "+A"]
 exception PrintError of string list
 
+type alignment =
+  | Left
+  | Right
+  | Center
+
 type tree_size = {
   width: int;
   children: tree_size list;
@@ -33,10 +38,11 @@ module type TABULATOR =
     and tree_contents = {
       node: _tree_contents;
       fill_with: char;
+      align: alignment;
     }
 
-    val leaf: ?fill_with:char -> contents -> tree_contents
-    val node: ?fill_with:char -> tree_contents list -> tree_contents
+    val leaf: ?fill_with:char -> ?align:alignment -> contents -> tree_contents
+    val node: ?fill_with:char -> ?align:alignment -> tree_contents list -> tree_contents
 
     val tree_size : tree_contents -> tree_size
     val print_tree_with_size: tree_size -> Format.formatter -> tree_contents -> unit
@@ -57,13 +63,14 @@ module Tabulator (T: PARAM)
     and tree_contents = {
       node: _tree_contents;
       fill_with: char;
+      align: alignment;
     }
 
-    let leaf ?(fill_with: char = ' ') (contents: contents) : tree_contents =
-      {node = Leaf contents; fill_with}
+    let leaf ?(fill_with: char = ' ') ?(align: alignment=Left) (contents: contents) : tree_contents =
+      {node = Leaf contents; fill_with; align}
 
-    let node ?(fill_with: char = ' ') (contents: tree_contents list) : tree_contents =
-      {node = Node contents; fill_with}
+    let node ?(fill_with: char = ' ') ?(align: alignment=Left) (contents: tree_contents list) : tree_contents =
+      {node = Node contents; fill_with; align}
 
     let rec tree_size : tree_contents -> tree_size = function
       | {node=Leaf s; _} -> {children = []; width = T.contents_length s}
@@ -75,28 +82,43 @@ module Tabulator (T: PARAM)
       let pad (fill_with: char) (fmt: Format.formatter) (n: int) : unit =
         Format.pp_print_string fmt (String.make n fill_with)
       in
-      let rec aux (str: tree_contents) (size: tree_size) : int =
+      let rec aux (str: tree_contents) (size: tree_size) : int * (Format.formatter -> unit) =
         match str with
-        | {node=Leaf s; fill_with} ->
+        | {node=Leaf s; fill_with; align} ->
           let d = size.width - T.contents_length s in
-          let () = Format.fprintf fmt "%a%a" T.pp s (pad fill_with) d in
-          T.contents_length s + d
-        | {node=Node l; fill_with} ->
-          let rec aux2 l m : int =
+          let pp fmt =
+            match align with
+            | Left -> Format.fprintf fmt "%a%a" T.pp s (pad fill_with) d
+            | Right -> Format.fprintf fmt "%a%a" (pad fill_with) d T.pp s
+            | Center ->
+              let half = d / 2 in
+              Format.fprintf fmt "%a%a%a" (pad fill_with) half T.pp s (pad fill_with) (d - half)
+          in
+          size.width, pp
+        | {node=Node l; fill_with; align} ->
+          let rec aux2 l m : int * (Format.formatter -> unit) =
             match l, m with
-            | [], _ -> 0
+            | [], _ -> 0, ignore
             | t1::q1, t2::q2 ->
-              let b = aux t1 t2 in
-              let d = aux2 q1 q2 in
-              b + d
+              let hd_width, hd_pp = aux t1 t2 in
+              let tl_width, tl_pp = aux2 q1 q2 in
+              hd_width + tl_width, (fun fmt -> hd_pp fmt; tl_pp fmt)
             | _::_, [] -> raise (PrintError [__LOC__; Format.asprintf "print_tree_with_size: pattern inconsistent with string tree"])
           in
-          let size_s = aux2 l size.children in
+          let size_s, pp = aux2 l size.children in
           let d = size.width - size_s in
-          let () = pad fill_with fmt d in
-          size_s + d
+          let pp fmt =
+            match align with
+            | Left -> Format.fprintf fmt "%t%a" pp (pad fill_with) d
+            | Right -> Format.fprintf fmt "%a%t" (pad fill_with) d pp
+            | Center ->
+              let half = d / 2 in
+              Format.fprintf fmt "%a%t%a" (pad fill_with) half pp (pad fill_with) (d - half)
+          in
+          size.width, pp
       in
-      aux str size |> ignore
+      let _, pp = aux str size in
+      pp fmt
 
     let print_table (fmt: Format.formatter) (str_tree : tree_contents list) : unit =
       let size_trees : tree_size list = List.map tree_size str_tree in
