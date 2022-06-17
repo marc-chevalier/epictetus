@@ -13,24 +13,17 @@ let () =
     | PrintError l ->
       let buf = Buffer.create 128 in
       let fmt = Format.formatter_of_buffer buf in
-      let () = Format.fprintf fmt "PrintError(" in
+      let () = Format.pp_print_string fmt "PrintError(" in
       let () =
         match l with
-        | [] -> Format.fprintf fmt ")"
-        | [s] -> Format.fprintf fmt "%s)" s
+        | [] -> ()
+        | [s] -> Format.pp_print_string fmt s
         | h::t ->
-          let () = Format.fprintf fmt "%s" h in
-          let () =
-            List.iter
-              (fun s ->
-                 Format.fprintf fmt ", %s" s
-              )
-              t
-          in
-          let () = Format.fprintf fmt ")" in
-          let () = Format.pp_print_flush fmt () in
+          let () = Format.pp_print_string fmt h in
+          let () = List.iter (Format.fprintf fmt ", %s") t in
           ()
       in
+      let () = Format.fprintf fmt ")@?" in
       Some (Buffer.contents buf)
     | _ -> None
   in

@@ -1,6 +1,6 @@
 [@@@warning "+A"]
-module Sized_pp_content
-  : Aligner.CONTENT
+module Sized_pp_contents
+  : Aligner_sig.CONTENTS
     with type contents = (Format.formatter -> unit) * int
   =
   (struct
@@ -9,10 +9,10 @@ module Sized_pp_content
     let pp (fmt: Format.formatter) (pp, _: contents) : unit = pp fmt
   end)
 
-module SizedPPAligner = Generic_aligner.GenericAligner(Sized_pp_content)
+module SizedPPAligner = Generic_aligner.GenericAligner(Sized_pp_contents)
 
-module Pp_content
-  : Aligner.CONTENT
+module Pp_contents
+  : Aligner_sig.CONTENTS
     with type contents = Format.formatter -> unit
   =
   (struct
@@ -21,10 +21,10 @@ module Pp_content
     let pp (fmt: Format.formatter) (pp: contents) : unit = pp fmt
   end)
 
-module PPAligner = Generic_aligner.GenericAligner(Pp_content)
+module PPAligner = Generic_aligner.GenericAligner(Pp_contents)
 
-module String_content
-  : Aligner.CONTENT
+module String_contents
+  : Aligner_sig.CONTENTS
     with type contents = string
   =
   (struct
@@ -33,4 +33,4 @@ module String_content
     let pp (fmt: Format.formatter) (c : contents) : unit = Format.pp_print_string fmt c
   end)
 
-module StringAligner = Generic_aligner.GenericAligner(String_content)
+module StringAligner = Generic_aligner.GenericAligner(String_contents)

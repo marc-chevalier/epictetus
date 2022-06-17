@@ -1,3 +1,9 @@
+3.1.0 (2022-06-10):
+- Richer interface
+
+3.0.1 (2021-06-08):
+- Add mli for Exn
+
 3.0.0 (2020-06-15):
 - Restructure
 
