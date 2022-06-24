@@ -35,28 +35,39 @@ module type ALIGNER =
     (** Print a tree_contents with respect to a given tree_size. This tree_size
         must be bigger than the tree_size corresponding to the tree_contents.
         Otherwise the behavior is undefined. Be careful.
+
+        trailing_whitespaces: whether to print trailing whitespaces. False by default.
     *)
-    val print_tree_with_size: Size_tree.t -> Format.formatter -> tree_contents -> unit
+    val print_tree_with_size: ?trailing_whitespaces:bool -> Size_tree.t -> Format.formatter -> tree_contents -> unit
 
     (** Print a list of tree_contents in a consistent way: it uses the smallest
         tree_size computed by joining all tree_size. This function must compute
         and merge all tree_size before starting. This is a good entrypoint.
+
+        trailing_whitespaces: whether to print trailing whitespaces. False by default.
     *)
-    val print_table: Format.formatter -> tree_contents list -> unit
+    val print_table: ?trailing_whitespaces:bool -> Format.formatter -> tree_contents list -> unit
 
     (** Like print_table but call the first parameter at the end of each line.
+
+        trailing_whitespaces: whether to print trailing whitespaces. False by default.
     *)
-    val kprint_table:  (Format.formatter -> unit) -> Format.formatter -> tree_contents list -> unit
+    val kprint_table: ?trailing_whitespaces:bool -> (Format.formatter -> unit) -> Format.formatter -> tree_contents list -> unit
 
     (** Print in a list of string a list of tree_contents in a consistent way:
         it uses the smallest tree_size computed by joining all tree_size. This
         function must compute and merge all tree_size before starting. This is
         a good entrypoint.
+
+        trailing_whitespaces: whether to print trailing whitespaces. False by default.
     *)
-    val stringify_table: tree_contents list -> string list
+    val stringify_table: ?trailing_whitespaces:bool -> tree_contents list -> string list
 
     (* Like stringify_table but returns a pretty-printer, rather than a string
        for each line. It's the lowest level function behind all other printing
-       functions. *)
-    val pp_of_table: tree_contents list -> (Format.formatter -> unit) list
+       functions.
+
+        trailing_whitespaces: whether to print trailing whitespaces. False by default.
+    *)
+    val pp_of_table: ?trailing_whitespaces:bool -> tree_contents list -> (Format.formatter -> unit) list
   end)

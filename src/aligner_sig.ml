@@ -26,10 +26,10 @@ module type ALIGNER =
 
     val tree_size : tree_contents -> Size_tree.t
     val tree_size_of_list : tree_contents list -> Size_tree.t option
-    val print_tree_with_size: Size_tree.t -> Format.formatter -> tree_contents -> unit
+    val print_tree_with_size: ?trailing_whitespaces:bool -> Size_tree.t -> Format.formatter -> tree_contents -> unit
 
-    val print_table: Format.formatter -> tree_contents list -> unit
-    val kprint_table:  (Format.formatter -> unit) -> Format.formatter -> tree_contents list -> unit
-    val stringify_table: tree_contents list -> string list
-    val pp_of_table: tree_contents list -> (Format.formatter -> unit) list
+    val print_table: ?trailing_whitespaces:bool -> Format.formatter -> tree_contents list -> unit
+    val kprint_table:  ?trailing_whitespaces:bool -> (Format.formatter -> unit) -> Format.formatter -> tree_contents list -> unit
+    val stringify_table: ?trailing_whitespaces:bool -> tree_contents list -> string list
+    val pp_of_table: ?trailing_whitespaces:bool -> tree_contents list -> (Format.formatter -> unit) list
   end)
